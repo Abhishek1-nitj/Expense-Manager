@@ -779,7 +779,7 @@ function buildCoursePerformance(rows) {
   });
 
   const remainingExpenses = totalExpenses - totalIncome;
-  const expensePercentage = totalIncome === 0 ? 0 : (totalExpenses / totalIncome) * 100;
+  const expensePercentage = totalExpenses === 0 ? 0 : (totalIncome / totalExpenses) * 100;
   const largestMagnitude = Math.max(Math.abs(totalExpenses), Math.abs(totalIncome), Math.abs(remainingExpenses), 1);
 
   return {
