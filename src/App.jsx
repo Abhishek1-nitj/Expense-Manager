@@ -9,7 +9,7 @@ export default function App() {
   const [activeView, setActiveView] = useState("all");
   const [openSectionsByView, setOpenSectionsByView] = useState({
     all: { summary: true, expenseSplit: true, details: true },
-    course: { summary: true, expenseSplit: false, details: true },
+    course: { coursePerformance: true, summary: true, expenseSplit: false, details: true },
   });
   const [openMonthsByView, setOpenMonthsByView] = useState({
     all: {},
@@ -36,7 +36,7 @@ export default function App() {
       setRows(parsedRows);
       setOpenSectionsByView({
         all: { summary: true, expenseSplit: true, details: true },
-        course: { summary: true, expenseSplit: false, details: true },
+        course: { coursePerformance: true, summary: true, expenseSplit: false, details: true },
       });
       setOpenMonthsByView({ all: {}, course: {} });
       setOpenExpenseSplitMonths({});
@@ -44,7 +44,7 @@ export default function App() {
       setRows([]);
       setOpenSectionsByView({
         all: { summary: true, expenseSplit: true, details: true },
-        course: { summary: true, expenseSplit: false, details: true },
+        course: { coursePerformance: true, summary: true, expenseSplit: false, details: true },
       });
       setOpenMonthsByView({ all: {}, course: {} });
       setOpenExpenseSplitMonths({});
@@ -210,48 +210,58 @@ function ReportView({
     <>
       {coursePerformance && (
         <section className="panel course-performance-panel">
-          <div className="section-heading">
+          <button
+            type="button"
+            className="section-heading section-toggle"
+            onClick={() => onToggleSection("coursePerformance")}
+            aria-expanded={Boolean(openSections.coursePerformance)}
+          >
             <div>
               <p className="eyebrow">Course Excel</p>
               <h2>Performance snapshot</h2>
             </div>
-          </div>
+            <span className="month-toggle-indicator">{openSections.coursePerformance ? "Hide" : "Show"}</span>
+          </button>
 
-          <div className="course-metric-grid">
-            <div className="course-metric">
-              <span>Total expenses</span>
-              <strong className="amount-expense">{formatCurrency(coursePerformance.totalExpenses)}</strong>
-            </div>
-            <div className="course-metric">
-              <span>Total income</span>
-              <strong className="amount-income">{formatCurrency(coursePerformance.totalIncome)}</strong>
-            </div>
-            <div className="course-metric">
-              <span>Remaining expenses</span>
-              <strong className={coursePerformance.remainingExpenses >= 0 ? "amount-expense" : "amount-income"}>
-                {formatCurrency(coursePerformance.remainingExpenses)}
-              </strong>
-            </div>
-            <div className="course-metric">
-              <span>Expense % of income</span>
-              <strong>{formatPercentage(coursePerformance.expensePercentage)}</strong>
-            </div>
-          </div>
-
-          <div className="course-chart">
-            {coursePerformance.chartBars.map((bar) => (
-              <div className="course-chart-item" key={bar.label}>
-                <div className="course-chart-bar-wrap">
-                  <div
-                    className={`course-chart-bar ${bar.className}`}
-                    style={{ height: `${bar.heightPercent}%` }}
-                  />
+          {openSections.coursePerformance && (
+            <>
+              <div className="course-metric-grid">
+                <div className="course-metric">
+                  <span>Total expenses</span>
+                  <strong className="amount-expense">{formatCurrency(coursePerformance.totalExpenses)}</strong>
                 </div>
-                <strong className={bar.className}>{formatCurrency(bar.value)}</strong>
-                <span>{bar.label}</span>
+                <div className="course-metric">
+                  <span>Total income</span>
+                  <strong className="amount-income">{formatCurrency(coursePerformance.totalIncome)}</strong>
+                </div>
+                <div className="course-metric">
+                  <span>Remaining expenses</span>
+                  <strong className={coursePerformance.remainingExpenses >= 0 ? "amount-expense" : "amount-income"}>
+                    {formatCurrency(coursePerformance.remainingExpenses)}
+                  </strong>
+                </div>
+                <div className="course-metric">
+                  <span>Expense % of income</span>
+                  <strong>{formatPercentage(coursePerformance.expensePercentage)}</strong>
+                </div>
               </div>
-            ))}
-          </div>
+
+              <div className="course-chart">
+                {coursePerformance.chartBars.map((bar) => (
+                  <div className="course-chart-item" key={bar.label}>
+                    <div className="course-chart-bar-wrap">
+                      <div
+                        className={`course-chart-bar ${bar.className}`}
+                        style={{ height: `${bar.heightPercent}%` }}
+                      />
+                    </div>
+                    <strong className={bar.className}>{formatCurrency(bar.value)}</strong>
+                    <span>{bar.label}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </section>
       )}
 
