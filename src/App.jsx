@@ -843,7 +843,7 @@ function dateOrderValue(label) {
 }
 
 function formatIncomeRowLabel(entry) {
-  return entry.date ? `${entry.note} · ${formatDisplayDate(entry.date)}` : entry.note;
+  return entry.note;
 }
 
 function formatExpenseRowLabel(entry) {
