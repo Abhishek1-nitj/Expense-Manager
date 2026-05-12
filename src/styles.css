@@ -158,7 +158,8 @@ body {
 .summary-panel,
 .details-panel,
 .tabs-panel,
-.empty-panel {
+.empty-panel,
+.course-performance-panel {
   margin-top: 20px;
   padding: 24px;
 }
@@ -199,6 +200,71 @@ body {
   border-color: rgba(196, 103, 45, 0.28);
   background: var(--accent-soft);
   color: var(--text);
+}
+
+.course-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.course-metric {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.course-metric span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.course-metric strong {
+  font-size: 1.2rem;
+}
+
+.course-chart {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: end;
+  margin-top: 16px;
+  padding: 20px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.course-chart-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.course-chart-item span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.course-chart-bar-wrap {
+  display: flex;
+  align-items: end;
+  height: 180px;
+  width: 100%;
+  max-width: 96px;
+}
+
+.course-chart-bar {
+  width: 100%;
+  min-height: 8px;
+  border-radius: 14px 14px 6px 6px;
+  background: currentColor;
+  opacity: 0.9;
 }
 
 .table-wrap {
@@ -378,6 +444,7 @@ body {
   .uploader-panel,
   .tabs-panel,
   .empty-panel,
+  .course-performance-panel,
   .summary-panel,
   .details-panel {
     padding: 18px;
@@ -391,5 +458,13 @@ body {
   .data-table th,
   .data-table td {
     padding: 12px 12px;
+  }
+
+  .course-chart {
+    grid-template-columns: 1fr;
+  }
+
+  .course-chart-bar-wrap {
+    max-width: 100%;
   }
 }

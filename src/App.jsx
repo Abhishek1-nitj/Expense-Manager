@@ -21,6 +21,7 @@ export default function App() {
   const allExpenseSplitMonths = useMemo(() => buildExpenseSplitMonths(rows), [rows]);
   const courseRows = useMemo(() => filterCourseRows(rows), [rows]);
   const courseMonths = useMemo(() => buildMonthlyGroups(courseRows), [courseRows]);
+  const coursePerformance = useMemo(() => buildCoursePerformance(courseRows), [courseRows]);
 
   async function handleFileChange(event) {
     const [file] = event.target.files || [];
@@ -148,6 +149,7 @@ export default function App() {
             <ReportView
               months={allMonths}
               expenseSplitMonths={allExpenseSplitMonths}
+              coursePerformance={null}
               openSections={openSectionsByView.all}
               openMonths={openMonthsByView.all}
               openExpenseSplitMonths={openExpenseSplitMonths}
@@ -162,6 +164,7 @@ export default function App() {
             <ReportView
               months={courseMonths}
               expenseSplitMonths={[]}
+              coursePerformance={coursePerformance}
               openSections={openSectionsByView.course}
               openMonths={openMonthsByView.course}
               openExpenseSplitMonths={{}}
@@ -182,6 +185,7 @@ export default function App() {
 function ReportView({
   months,
   expenseSplitMonths,
+  coursePerformance,
   openSections,
   openMonths,
   openExpenseSplitMonths,
@@ -204,6 +208,53 @@ function ReportView({
 
   return (
     <>
+      {coursePerformance && (
+        <section className="panel course-performance-panel">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">Course Excel</p>
+              <h2>Performance snapshot</h2>
+            </div>
+          </div>
+
+          <div className="course-metric-grid">
+            <div className="course-metric">
+              <span>Total expenses</span>
+              <strong className="amount-expense">{formatCurrency(coursePerformance.totalExpenses)}</strong>
+            </div>
+            <div className="course-metric">
+              <span>Total income</span>
+              <strong className="amount-income">{formatCurrency(coursePerformance.totalIncome)}</strong>
+            </div>
+            <div className="course-metric">
+              <span>Remaining expenses</span>
+              <strong className={coursePerformance.remainingExpenses >= 0 ? "amount-expense" : "amount-income"}>
+                {formatCurrency(coursePerformance.remainingExpenses)}
+              </strong>
+            </div>
+            <div className="course-metric">
+              <span>Expense % of income</span>
+              <strong>{formatPercentage(coursePerformance.expensePercentage)}</strong>
+            </div>
+          </div>
+
+          <div className="course-chart">
+            {coursePerformance.chartBars.map((bar) => (
+              <div className="course-chart-item" key={bar.label}>
+                <div className="course-chart-bar-wrap">
+                  <div
+                    className={`course-chart-bar ${bar.className}`}
+                    style={{ height: `${bar.heightPercent}%` }}
+                  />
+                </div>
+                <strong className={bar.className}>{formatCurrency(bar.value)}</strong>
+                <span>{bar.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="panel summary-panel">
         <button
           type="button"
@@ -715,6 +766,50 @@ function buildGroupedRows(rows) {
   return [...grouped.values()].sort((left, right) => right.amount - left.amount || left.note.localeCompare(right.note));
 }
 
+function buildCoursePerformance(rows) {
+  let totalExpenses = 0;
+  let totalIncome = 0;
+
+  rows.forEach((row) => {
+    if (row.type.toLowerCase() === "expense") {
+      totalExpenses += row.amount;
+    } else if (row.type.toLowerCase() === "income") {
+      totalIncome += row.amount;
+    }
+  });
+
+  const remainingExpenses = totalExpenses - totalIncome;
+  const expensePercentage = totalIncome === 0 ? 0 : (totalExpenses / totalIncome) * 100;
+  const largestMagnitude = Math.max(Math.abs(totalExpenses), Math.abs(totalIncome), Math.abs(remainingExpenses), 1);
+
+  return {
+    totalExpenses,
+    totalIncome,
+    remainingExpenses,
+    expensePercentage,
+    chartBars: [
+      {
+        label: "Total expenses",
+        value: totalExpenses,
+        heightPercent: (Math.abs(totalExpenses) / largestMagnitude) * 100,
+        className: "amount-expense",
+      },
+      {
+        label: "Total income",
+        value: totalIncome,
+        heightPercent: (Math.abs(totalIncome) / largestMagnitude) * 100,
+        className: "amount-income",
+      },
+      {
+        label: "Remaining expenses",
+        value: remainingExpenses,
+        heightPercent: (Math.abs(remainingExpenses) / largestMagnitude) * 100,
+        className: remainingExpenses >= 0 ? "amount-expense" : "amount-income",
+      },
+    ],
+  };
+}
+
 function monthOrderValue(label) {
   const parsed = Date.parse(`01-${label}`);
   return Number.isNaN(parsed) ? 0 : parsed;
@@ -726,6 +821,10 @@ function formatCurrency(value) {
     currency: "INR",
     maximumFractionDigits: 2,
   }).format(value);
+}
+
+function formatPercentage(value) {
+  return `${value.toFixed(2)}%`;
 }
 
 function dateOrderValue(label) {
